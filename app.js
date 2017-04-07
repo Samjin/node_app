@@ -60,10 +60,17 @@ console.log(buf[0]); // 104
 // console.log(buf.toString());
 
 const fs = require('fs')
+const zlib = require('zlib') //part of Node core, allow us to gzip files
+const gzip = zlib.createGzip(); //this create a "readable stream"
 
-const readfile1 = fs.readFileSync(__dirname + '/readfile', 'utf8')
-console.log(readfile1, 1);
+/*Core of readable and writeable, Stream is event emiter */
+// when reading the file, it'll fill the buffer with file content. 
+// However, if it's bigger than buffer, it'll read the sequence chunk by chunk. 
+const readable = fs.createReadStream(__dirname + '/lorem')
+const writable = fs.createWriteStream(__dirname + '/lorem1')
+const compressed = fs.createWriteStream(__dirname + '/lorem.sh.gz')
 
-const readfile2 = fs.readFile(__dirname + '/readfile', 'utf8', function(err, data) {
-    console.log(data.toString(), 2); // Most callbacks use err as first parameter. If no err, 'null' wil be return;
-})
+// Read readable-stream and transform to WRITABLE-stream, then the writable stream is 
+// convert to "WRITABLE"" and READABLE" gzip stream through zlib.createGzip()
+// then transform to another WRITABLE stream and saved as lorem.gz
+readable.pipe(gzip).pipe(compressed)
